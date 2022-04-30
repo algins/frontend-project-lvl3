@@ -6,6 +6,13 @@
   "scripts": {
     "test": "npx jest --bail"
   },
+  "jest": {
+    "verbose": true,
+    "testEnvironment": "jsdom",
+    "testEnvironmentOptions": {
+      "url": "http://localhost/"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/algins/frontend-project-lvl3.git"
@@ -34,6 +41,7 @@
     "html-webpack-plugin": "^5.5.0",
     "jest": "^28.0.3",
     "jest-cli": "^28.0.3",
+    "jest-environment-jsdom": "^28.0.2",
     "postcss-loader": "^6.2.1",
     "postcss-preset-env": "^7.4.4",
     "sass": "^1.51.0",

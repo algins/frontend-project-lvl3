@@ -1,3 +1,5 @@
+import init from '../src/index.js';
+
 test('example', () => {
-  expect(true).toBe(true);
+  expect(init()).toBe(true);
 });
