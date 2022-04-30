@@ -1,5 +1,5 @@
-import init from '../src/index.js';
+import init from '../src/init.js';
 
-test('example', () => {
+test('init', () => {
   expect(init()).toBe(true);
 });

@@ -18,7 +18,7 @@ RSS feed aggregator service
 $ git clone https://github.com/algins/frontend-project-lvl3.git
 $ cd frontend-project-lvl3
 $ make install
-$ make start
+$ make run
 ```
 
 ## Demo:

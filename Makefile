@@ -1,7 +1,7 @@
 install:
 	npm ci
 
-start:
+run:
 	npx webpack serve
 
 build:
