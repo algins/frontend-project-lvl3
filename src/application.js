@@ -1,26 +1,35 @@
+import i18next from 'i18next';
 import isEmpty from 'lodash/isEmpty.js';
-import * as yup from 'yup';
+import { setLocale, string } from 'yup';
+import resources from './locales/index.js';
 import watch from './watcher.js';
 
 const validateUrl = (url, urls) => {
-  const schema = yup
-    .string()
-    .required()
-    .url()
-    .notOneOf(urls)
-    .label('RSS feed URL');
+  const attribute = i18next.t('validation.attributes.url');
+
+  setLocale({
+    mixed: {
+      notOneOf: i18next.t('validation.rules.notOneOf', { attribute }),
+    },
+    string: {
+      url: i18next.t('validation.rules.url', { attribute }),
+    },
+  });
+
+  const scheme = string().url().notOneOf(urls);
+
   try {
-    schema.validateSync(url);
+    scheme.validateSync(url);
     return [];
   } catch ({ errors }) {
     return errors;
   }
 };
 
-export default () => {
+const runApp = () => {
   const state = {
     form: {
-      IsValid: true,
+      isValid: true,
       errors: [],
     },
     urls: [],
@@ -46,4 +55,10 @@ export default () => {
     watchedState.form.errors = errors;
     watchedState.urls = isValid ? [...urls, url] : urls;
   });
+};
+
+export default () => {
+  i18next
+    .init({ lng: 'en', resources })
+    .then(() => runApp());
 };
