@@ -5,19 +5,7 @@ import resources from './locales/index.js';
 import watch from './watcher.js';
 
 const validateUrl = (url, urls) => {
-  const attribute = i18next.t('validation.attributes.url');
-
-  setLocale({
-    mixed: {
-      notOneOf: i18next.t('validation.rules.notOneOf', { attribute }),
-    },
-    string: {
-      url: i18next.t('validation.rules.url', { attribute }),
-    },
-  });
-
   const scheme = string().url().notOneOf(urls);
-
   try {
     scheme.validateSync(url);
     return [];
@@ -59,6 +47,19 @@ const runApp = () => {
 
 export default () => {
   i18next
-    .init({ lng: 'en', resources })
-    .then(() => runApp());
+    .init({
+      lng: 'en',
+      resources,
+    })
+    .then((t) => {
+      setLocale({
+        mixed: {
+          notOneOf: t('validation.rules.notOneOf'),
+        },
+        string: {
+          url: t('validation.rules.url'),
+        },
+      });
+      runApp();
+    });
 };

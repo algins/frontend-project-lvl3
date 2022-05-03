@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import runApp from '../src/application.js';
+import init from '../src/init.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -13,7 +13,7 @@ beforeEach(async () => {
   document.body.innerHTML = html;
 });
 
-test('runApp', () => {
-  runApp();
+test('init', () => {
+  init();
   expect(true).toBeDefined();
 });
