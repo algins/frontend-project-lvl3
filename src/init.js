@@ -1,5 +1,7 @@
+import axios from 'axios';
 import i18next from 'i18next';
-import isEmpty from 'lodash/isEmpty.js';
+import first from 'lodash/first.js';
+import uniqueId from 'lodash/uniqueId.js';
 import { setLocale, string } from 'yup';
 import resources from './locales/index.js';
 import watch from './watcher.js';
@@ -8,25 +10,59 @@ const validateUrl = (url, urls) => {
   const scheme = string().url().notOneOf(urls);
   try {
     scheme.validateSync(url);
-    return [];
+    return null;
   } catch ({ errors }) {
-    return errors;
+    return first(errors);
   }
 };
 
-const runApp = () => {
+const getProxyUrl = (url) => {
+  const proxyUrl = new URL('/get', 'https://allorigins.hexlet.app');
+  proxyUrl.searchParams.append('disableCache', true);
+  proxyUrl.searchParams.append('url', url);
+  return proxyUrl.toString();
+};
+
+const parseRss = (rss) => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(rss, 'text/xml');
+  const errorNode = doc.querySelector('parsererror');
+
+  if (errorNode) {
+    const error = new Error(errorNode.textContent);
+    error.isParsingError = true;
+    throw error;
+  }
+
+  return {
+    title: doc.querySelector('channel > title').textContent,
+    description: doc.querySelector('channel > description').textContent,
+    items: [...doc.querySelectorAll('channel > item')].map((item) => ({
+      title: item.querySelector('title').textContent,
+      link: item.querySelector('link').textContent,
+    })),
+  };
+};
+
+const runApp = (t) => {
   const state = {
     form: {
       isValid: true,
-      errors: [],
+      validationError: null,
+      processState: 'filling',
+      processError: null,
     },
-    urls: [],
+    feeds: [],
+    posts: [],
   };
 
   const elements = {
     feedback: document.querySelector('.feedback'),
     form: document.querySelector('form'),
     urlInput: document.getElementById('url-input'),
+    submitButton: document.querySelector('[type="submit"]'),
+    feedsContainer: document.querySelector('.feeds'),
+    postsContainer: document.querySelector('.posts'),
   };
 
   const watchedState = watch(state, elements);
@@ -35,13 +71,48 @@ const runApp = () => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const url = formData.get('url');
-    const { urls } = watchedState;
-    const errors = validateUrl(url, urls);
-    const isValid = isEmpty(errors);
+    const { feeds, posts } = watchedState;
+    const validationError = validateUrl(url, feeds.map((feed) => feed.url));
+    const isValid = validationError === null;
+
+    if (isValid) {
+      watchedState.form.processState = 'loading';
+      watchedState.form.processError = null;
+
+      const proxyUrl = getProxyUrl(url);
+      axios
+        .get(proxyUrl)
+        .then(({ data: { contents } }) => {
+          const id = uniqueId();
+          const { items, ...rest } = parseRss(contents);
+          const feed = { id, url, ...rest };
+          const feedPosts = items.map((item) => ({ feedId: id, ...item }));
+
+          watchedState.form.processState = 'filling';
+          watchedState.feeds = [...feeds, feed];
+          watchedState.posts = [...posts, ...feedPosts];
+        })
+        .catch((error) => {
+          watchedState.form.processState = 'error';
+
+          switch (true) {
+            case error.isAxiosError:
+              watchedState.form.processError = t('processError.network');
+              break;
+            case error.isParsingError:
+              watchedState.form.processError = t('processError.parsing');
+              break;
+            default:
+              watchedState.form.processError = t('processError.unexpected');
+              break;
+          }
+
+          throw error;
+        });
+    }
 
     watchedState.form.isValid = isValid;
-    watchedState.form.errors = errors;
-    watchedState.urls = isValid ? [...urls, url] : urls;
+    watchedState.form.validationError = validationError;
   });
 };
 
@@ -54,12 +125,12 @@ export default () => {
     .then((t) => {
       setLocale({
         mixed: {
-          notOneOf: t('validation.rules.notOneOf'),
+          notOneOf: t('validationError.notOneOf'),
         },
         string: {
-          url: t('validation.rules.url'),
+          url: t('validationError.url'),
         },
       });
-      runApp();
+      runApp(t);
     });
 };
