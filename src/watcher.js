@@ -24,14 +24,24 @@ const handleProcessState = (elements, processState) => {
   }
 };
 
-const renderUrlInput = (elements, isValid) => {
+const handleValidationState = (elements, validationState) => {
   const { urlInput } = elements;
-  if (isValid) {
-    urlInput.value = '';
-    urlInput.focus();
-    urlInput.classList.remove('is-invalid');
-  } else {
-    urlInput.classList.add('is-invalid');
+
+  switch (validationState) {
+    case 'valid': {
+      urlInput.value = '';
+      urlInput.focus();
+      urlInput.classList.remove('is-invalid');
+      break;
+    }
+
+    case 'invalid': {
+      urlInput.classList.add('is-invalid');
+      break;
+    }
+
+    default:
+      throw new Error(`Unknown validation state: ${validationState}`);
   }
 };
 
@@ -93,8 +103,8 @@ const render = (elements) => (path, value) => {
       renderFeedback(elements, value);
       break;
 
-    case 'form.isValid': {
-      renderUrlInput(elements, value);
+    case 'form.validationState': {
+      handleValidationState(elements, value);
       break;
     }
 

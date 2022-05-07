@@ -6,15 +6,7 @@ import { setLocale, string } from 'yup';
 import resources from './locales/index.js';
 import watch from './watcher.js';
 
-const validateUrl = (url, urls) => {
-  const scheme = string().url().notOneOf(urls);
-  try {
-    scheme.validateSync(url);
-    return null;
-  } catch ({ errors }) {
-    return first(errors);
-  }
-};
+const getUrlSchema = (urls) => string().url().notOneOf(urls);
 
 const getProxyUrl = (url) => {
   const proxyUrl = new URL('/get', 'https://allorigins.hexlet.app');
@@ -47,7 +39,7 @@ const parseRss = (rss) => {
 const runApp = (t) => {
   const state = {
     form: {
-      isValid: true,
+      validationState: 'valid',
       validationError: null,
       processState: 'filling',
       processError: null,
@@ -72,47 +64,50 @@ const runApp = (t) => {
     const formData = new FormData(e.target);
     const url = formData.get('url');
     const { feeds, posts } = watchedState;
-    const validationError = validateUrl(url, feeds.map((feed) => feed.url));
-    const isValid = validationError === null;
+    const urls = feeds.map((feed) => feed.url);
 
-    if (isValid) {
-      watchedState.form.processState = 'loading';
-      watchedState.form.processError = null;
+    const urlSchema = getUrlSchema(urls);
+    urlSchema
+      .validate(url)
+      .then(() => {
+        watchedState.form.validationState = 'valid';
+        watchedState.form.validationError = null;
+        watchedState.form.processState = 'loading';
+        watchedState.form.processError = null;
 
-      const proxyUrl = getProxyUrl(url);
-      axios
-        .get(proxyUrl)
-        .then(({ data: { contents } }) => {
-          const id = uniqueId();
-          const { items, ...rest } = parseRss(contents);
-          const feed = { id, url, ...rest };
-          const feedPosts = items.map((item) => ({ feedId: id, ...item }));
+        const proxyUrl = getProxyUrl(url);
+        axios
+          .get(proxyUrl)
+          .then(({ data: { contents } }) => {
+            const id = uniqueId();
+            const { items, ...rest } = parseRss(contents);
+            const feed = { id, url, ...rest };
+            const feedPosts = items.map((item) => ({ feedId: id, ...item }));
 
-          watchedState.form.processState = 'filling';
-          watchedState.feeds = [...feeds, feed];
-          watchedState.posts = [...posts, ...feedPosts];
-        })
-        .catch((error) => {
-          watchedState.form.processState = 'error';
+            watchedState.form.processState = 'filling';
+            watchedState.feeds = [...feeds, feed];
+            watchedState.posts = [...posts, ...feedPosts];
+          })
+          .catch((error) => {
+            watchedState.form.processState = 'error';
 
-          switch (true) {
-            case error.isAxiosError:
-              watchedState.form.processError = t('processError.network');
-              break;
-            case error.isParsingError:
-              watchedState.form.processError = t('processError.parsing');
-              break;
-            default:
-              watchedState.form.processError = t('processError.unexpected');
-              break;
-          }
-
-          throw error;
-        });
-    }
-
-    watchedState.form.isValid = isValid;
-    watchedState.form.validationError = validationError;
+            switch (true) {
+              case error.isAxiosError:
+                watchedState.form.processError = t('processError.network');
+                break;
+              case error.isParsingError:
+                watchedState.form.processError = t('processError.parsing');
+                break;
+              default:
+                watchedState.form.processError = t('processError.unexpected');
+                break;
+            }
+          });
+      })
+      .catch(({ errors }) => {
+        watchedState.form.validationState = 'invalid';
+        watchedState.form.validationError = first(errors);
+      });
   });
 };
 
