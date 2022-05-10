@@ -1,10 +1,12 @@
 import onChange from 'on-change';
 
 const handleProcessState = (elements, processState) => {
-  const { submitButton } = elements;
+  const { submitButton, urlInput } = elements;
 
   switch (processState) {
     case 'filling': {
+      urlInput.value = '';
+      urlInput.focus();
       submitButton.disabled = false;
       break;
     }
@@ -29,8 +31,6 @@ const handleValidationState = (elements, validationState) => {
 
   switch (validationState) {
     case 'valid': {
-      urlInput.value = '';
-      urlInput.focus();
       urlInput.classList.remove('is-invalid');
       break;
     }
@@ -53,8 +53,9 @@ const renderFeedback = (elements, error) => {
 const renderFeeds = (elements, feeds) => {
   const { feedsContainer } = elements;
   const ul = feedsContainer.querySelector('ul');
+  ul.innerHTML = '';
   const h2 = feedsContainer.querySelector('h2');
-  h2.classList.toggle('d-none');
+  h2.classList.toggle('d-none', feeds.length === 0);
 
   feeds.forEach(({ title, description }) => {
     const li = document.createElement('li');
@@ -76,8 +77,9 @@ const renderFeeds = (elements, feeds) => {
 const renderPosts = (elements, posts) => {
   const { postsContainer } = elements;
   const ul = postsContainer.querySelector('ul');
+  ul.innerHTML = '';
   const h2 = postsContainer.querySelector('h2');
-  h2.classList.toggle('d-none');
+  h2.classList.toggle('d-none', posts.length === 0);
 
   posts.forEach(({ title, link }) => {
     const li = document.createElement('li');

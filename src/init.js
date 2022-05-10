@@ -1,6 +1,8 @@
 import axios from 'axios';
 import i18next from 'i18next';
+import differenceWith from 'lodash/differenceWith.js';
 import first from 'lodash/first.js';
+import isEqual from 'lodash/isEqual.js';
 import uniqueId from 'lodash/uniqueId.js';
 import { setLocale, string } from 'yup';
 import resources from './locales/index.js';
@@ -59,6 +61,25 @@ const runApp = (t) => {
 
   const watchedState = watch(state, elements);
 
+  const updatePosts = () => {
+    const { feeds, posts } = watchedState;
+    feeds.forEach(({ id, url }) => {
+      const proxyUrl = getProxyUrl(url);
+      axios
+        .get(proxyUrl)
+        .then(({ data: { contents } }) => {
+          const { items } = parseRss(contents);
+          const currentPosts = items.map((item) => ({ feedId: id, ...item }));
+          const previousPosts = posts.filter(({ feedId }) => feedId === id);
+          const newPosts = differenceWith(currentPosts, previousPosts, isEqual);
+          watchedState.posts = [...newPosts, ...posts];
+        });
+    });
+    setTimeout(updatePosts, 5000);
+  };
+
+  updatePosts();
+
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -85,8 +106,8 @@ const runApp = (t) => {
             const feedPosts = items.map((item) => ({ feedId: id, ...item }));
 
             watchedState.form.processState = 'filling';
-            watchedState.feeds = [...feeds, feed];
-            watchedState.posts = [...posts, ...feedPosts];
+            watchedState.feeds = [feed, ...feeds];
+            watchedState.posts = [...feedPosts, ...posts];
           })
           .catch((error) => {
             watchedState.form.processState = 'error';
