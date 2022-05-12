@@ -21,8 +21,9 @@ const handleProcessState = (elements, processState) => {
       break;
     }
 
-    default:
+    default: {
       throw new Error(`Unknown process state: ${processState}`);
+    }
   }
 };
 
@@ -40,8 +41,9 @@ const handleValidationState = (elements, validationState) => {
       break;
     }
 
-    default:
+    default: {
       throw new Error(`Unknown validation state: ${validationState}`);
+    }
   }
 };
 
@@ -74,60 +76,88 @@ const renderFeeds = (elements, feeds) => {
   });
 };
 
-const renderPosts = (elements, posts) => {
+const renderPosts = (elements, newPosts, watchedState, t) => {
   const { postsContainer } = elements;
   const ul = postsContainer.querySelector('ul');
-  ul.innerHTML = '';
   const h2 = postsContainer.querySelector('h2');
-  h2.classList.toggle('d-none', posts.length === 0);
+  h2.classList.remove('d-none');
 
-  posts.forEach(({ title, link }) => {
+  newPosts.reverse().forEach((post) => {
+    const { id, title, url } = post;
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0');
-    ul.append(li);
+    ul.prepend(li);
 
     const a = document.createElement('a');
     a.classList.add('fw-bold');
+    a.dataset.postId = id;
     a.textContent = title;
-    a.setAttribute('href', link);
+    a.setAttribute('href', url);
     a.setAttribute('target', '_blank');
-    li.append(a);
+    a.addEventListener('click', (e) => e.target.classList.replace('fw-bold', 'fw-normal'));
+
+    const button = document.createElement('button');
+    button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    button.dataset.bsToggle = 'modal';
+    button.dataset.bsTarget = '#modal';
+    button.textContent = t('preview');
+    button.addEventListener('click', () => {
+      watchedState.previewPost = post;
+    });
+
+    li.append(a, button);
   });
 };
 
-const render = (elements) => (path, value) => {
-  switch (path) {
-    case 'form.processState':
-      handleProcessState(elements, value);
-      break;
-
-    case 'form.processError':
-      renderFeedback(elements, value);
-      break;
-
-    case 'form.validationState': {
-      handleValidationState(elements, value);
-      break;
-    }
-
-    case 'form.validationError': {
-      renderFeedback(elements, value);
-      break;
-    }
-
-    case 'feeds': {
-      renderFeeds(elements, value);
-      break;
-    }
-
-    case 'posts': {
-      renderPosts(elements, value);
-      break;
-    }
-
-    default:
-      break;
-  }
+const renderModal = (elements, previewPost) => {
+  const { modalTitle, modalBody, readMoreButton } = elements;
+  modalTitle.textContent = previewPost.title;
+  modalBody.textContent = previewPost.description;
+  readMoreButton.href = previewPost.url;
+  document.querySelector(`[data-post-id="${previewPost.id}"]`).classList.replace('fw-bold', 'fw-normal');
 };
 
-export default (state, elements) => onChange(state, render(elements));
+export default (state, elements, t) => {
+  const watchedState = onChange(state, (path, value) => {
+    switch (path) {
+      case 'form.processState':
+        handleProcessState(elements, value);
+        break;
+
+      case 'form.processError':
+        renderFeedback(elements, value);
+        break;
+
+      case 'form.validationState': {
+        handleValidationState(elements, value);
+        break;
+      }
+
+      case 'form.validationError': {
+        renderFeedback(elements, value);
+        break;
+      }
+
+      case 'feeds': {
+        renderFeeds(elements, value);
+        break;
+      }
+
+      case 'newPosts': {
+        renderPosts(elements, value, watchedState, t);
+        break;
+      }
+
+      case 'previewPost': {
+        renderModal(elements, value);
+        break;
+      }
+
+      default: {
+        break;
+      }
+    }
+  });
+
+  return watchedState;
+};

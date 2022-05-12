@@ -9,5 +9,6 @@ export default {
       notOneOf: 'The resource already exists.',
       url: 'The resource must be a valid URL.',
     },
+    preview: 'Preview',
   },
 };

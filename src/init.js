@@ -3,6 +3,7 @@ import i18next from 'i18next';
 import differenceWith from 'lodash/differenceWith.js';
 import first from 'lodash/first.js';
 import isEqual from 'lodash/isEqual.js';
+import omit from 'lodash/omit.js';
 import uniqueId from 'lodash/uniqueId.js';
 import { setLocale, string } from 'yup';
 import resources from './locales/index.js';
@@ -33,7 +34,8 @@ const parseRss = (rss) => {
     description: doc.querySelector('channel > description').textContent,
     items: [...doc.querySelectorAll('channel > item')].map((item) => ({
       title: item.querySelector('title').textContent,
-      link: item.querySelector('link').textContent,
+      description: item.querySelector('description').textContent,
+      url: item.querySelector('link').textContent,
     })),
   };
 };
@@ -47,7 +49,9 @@ const runApp = (t) => {
       processError: null,
     },
     feeds: [],
+    newPosts: [],
     posts: [],
+    previewPost: null,
   };
 
   const elements = {
@@ -57,9 +61,12 @@ const runApp = (t) => {
     submitButton: document.querySelector('[type="submit"]'),
     feedsContainer: document.querySelector('.feeds'),
     postsContainer: document.querySelector('.posts'),
+    modalTitle: document.querySelector('.modal-title'),
+    modalBody: document.querySelector('.modal-body'),
+    readMoreButton: document.querySelector('.read-more'),
   };
 
-  const watchedState = watch(state, elements);
+  const watchedState = watch(state, elements, t);
 
   const updatePosts = () => {
     const { feeds, posts } = watchedState;
@@ -69,9 +76,15 @@ const runApp = (t) => {
         .get(proxyUrl)
         .then(({ data: { contents } }) => {
           const { items } = parseRss(contents);
-          const currentPosts = items.map((item) => ({ feedId: id, ...item }));
-          const previousPosts = posts.filter(({ feedId }) => feedId === id);
-          const newPosts = differenceWith(currentPosts, previousPosts, isEqual);
+
+          const previousItems = posts
+            .filter(({ feedId }) => feedId === id)
+            .map((post) => omit(post, ['id', 'feedId']));
+
+          const newItems = differenceWith(items, previousItems, isEqual);
+          const newPosts = newItems.map((item) => ({ id: uniqueId(), feedId: id, ...item }));
+
+          watchedState.newPosts = newPosts;
           watchedState.posts = [...newPosts, ...posts];
         });
     });
@@ -100,13 +113,14 @@ const runApp = (t) => {
         axios
           .get(proxyUrl)
           .then(({ data: { contents } }) => {
-            const id = uniqueId();
-            const { items, ...rest } = parseRss(contents);
-            const feed = { id, url, ...rest };
-            const feedPosts = items.map((item) => ({ feedId: id, ...item }));
+            const { items, ...restProps } = parseRss(contents);
+            const feedId = uniqueId();
+            const feed = { id: feedId, url, ...restProps };
+            const feedPosts = items.map((item) => ({ id: uniqueId(), feedId, ...item }));
 
             watchedState.form.processState = 'filling';
             watchedState.feeds = [feed, ...feeds];
+            watchedState.newPosts = feedPosts;
             watchedState.posts = [...feedPosts, ...posts];
           })
           .catch((error) => {
