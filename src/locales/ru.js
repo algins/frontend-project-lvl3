@@ -1,9 +1,12 @@
 export default {
   translation: {
-    processError: {
-      network: 'Ошибка сети',
-      parsing: 'Ресурс не содержит валидный RSS',
-      unexpected: 'Неожиданная ошибка',
+    processMessage: {
+      error: {
+        network: 'Ошибка сети',
+        parsing: 'Ресурс не содержит валидный RSS',
+        unexpected: 'Неожиданная ошибка',
+      },
+      success: 'RSS успешно загружен',
     },
     validationError: {
       notOneOf: 'RSS уже существует',

@@ -1,10 +1,11 @@
 import onChange from 'on-change';
 
 const handleProcessState = (elements, processState) => {
-  const { submitButton, urlInput } = elements;
+  const { feedback, submitButton, urlInput } = elements;
 
   switch (processState) {
-    case 'filling': {
+    case 'loaded': {
+      feedback.classList.add('text-success');
       urlInput.value = '';
       urlInput.focus();
       submitButton.disabled = false;
@@ -17,6 +18,7 @@ const handleProcessState = (elements, processState) => {
     }
 
     case 'error': {
+      feedback.classList.add('text-danger');
       submitButton.disabled = false;
       break;
     }
@@ -28,15 +30,17 @@ const handleProcessState = (elements, processState) => {
 };
 
 const handleValidationState = (elements, validationState) => {
-  const { urlInput } = elements;
+  const { feedback, urlInput } = elements;
 
   switch (validationState) {
     case 'valid': {
+      feedback.classList.remove('text-danger');
       urlInput.classList.remove('is-invalid');
       break;
     }
 
     case 'invalid': {
+      feedback.classList.add('text-danger');
       urlInput.classList.add('is-invalid');
       break;
     }
@@ -124,7 +128,7 @@ export default (state, elements, t) => {
         handleProcessState(elements, value);
         break;
 
-      case 'form.processError':
+      case 'form.processMessage':
         renderFeedback(elements, value);
         break;
 

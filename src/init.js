@@ -25,7 +25,7 @@ const runApp = (t) => {
       validationState: 'valid',
       validationError: null,
       processState: 'filling',
-      processError: null,
+      processMessage: null,
     },
     feeds: [],
     newPosts: [],
@@ -86,7 +86,7 @@ const runApp = (t) => {
         watchedState.form.validationState = 'valid';
         watchedState.form.validationError = null;
         watchedState.form.processState = 'loading';
-        watchedState.form.processError = null;
+        watchedState.form.processMessage = null;
 
         const proxyUrl = getProxyUrl(url);
         axios
@@ -97,7 +97,8 @@ const runApp = (t) => {
             const feed = { id: feedId, url, ...restProps };
             const feedPosts = items.map((item) => ({ id: uniqueId(), feedId, ...item }));
 
-            watchedState.form.processState = 'filling';
+            watchedState.form.processState = 'loaded';
+            watchedState.form.processMessage = t('processMessage.success');
             watchedState.feeds = [feed, ...feeds];
             watchedState.newPosts = feedPosts;
             watchedState.posts = [...feedPosts, ...posts];
@@ -107,13 +108,13 @@ const runApp = (t) => {
 
             switch (true) {
               case error.isAxiosError:
-                watchedState.form.processError = t('processError.network');
+                watchedState.form.processMessage = t('processMessage.error.network');
                 break;
               case error.isParsingError:
-                watchedState.form.processError = t('processError.parsing');
+                watchedState.form.processMessage = t('processMessage.error.parsing');
                 break;
               default:
-                watchedState.form.processError = t('processError.unexpected');
+                watchedState.form.processMessage = t('processMessage.error.unexpected');
                 break;
             }
           });
