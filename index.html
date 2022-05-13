@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
     <head>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>RSS feed reader</title>
+        <title>RSS агрегатор</title>
     </head>
 
     <body class="d-flex flex-column min-vh-100">
@@ -37,12 +37,12 @@
                             role="button"
                             target="_blank"
                             rel="noopener noreferrer"
-                        >Read More</a>
+                        >Читать полностью</a>
                         <button
                             type="button"
                             class="btn btn-secondary"
                             data-bs-dismiss="modal"
-                        >Close</button>
+                        >Закрыть</button>
                     </div>
                 </div>
             </div>
@@ -52,8 +52,8 @@
             <section class="container-fluid bg-dark p-5">
                 <div class="row">
                     <div class="col-md-10 col-lg-8 mx-auto text-white">
-                        <h1 class="display-3 mb-0">RSS feed reader</h1>
-                        <p class="lead">Start reading RSS today! It's easy, it's beautiful.</p>
+                        <h1 class="display-3 mb-0">RSS агрегатор</h1>
+                        <p class="lead">Начните читать RSS сегодня! Это легко, это красиво.</p>
 
                         <form action="" class="text-body">
                             <div class="row">
@@ -66,10 +66,10 @@
                                             name="url"
                                             aria-label="url"
                                             class="form-control w-100"
-                                            placeholder="RSS feed URL"
+                                            placeholder="ссылка RSS"
                                             autocomplete="off"
                                         >
-                                        <label for="url-input">RSS feed URL</label>
+                                        <label for="url-input">Ссылка RSS</label>
                                     </div>
                                 </div>
 
@@ -78,12 +78,12 @@
                                         type="submit"
                                         aria-label="add"
                                         class="h-100 btn btn-lg btn-primary px-sm-5"
-                                    >Add</button>
+                                    >Добавить</button>
                                 </div>
                             </div>
                         </form>
 
-                        <p class="mt-2 mb-0 text-muted">Example: https://ru.hexlet.io/lessons.rss</p>
+                        <p class="mt-2 mb-0 text-muted">Пример: https://ru.hexlet.io/lessons.rss</p>
                         <p class="feedback m-0 position-absolute small text-danger"></p>
                     </div>
                 </div>
@@ -94,7 +94,7 @@
                     <div class="col-md-10 col-lg-8 order-1 mx-auto posts">
                         <div class="card border-0">
                             <div class="card-body">
-                                <h2 class="card-title h4 d-none">Posts</h2>
+                                <h2 class="card-title h4 d-none">Посты</h2>
                             </div>
                             <ul class="list-group border-0 rounded-0"></ul>
                         </div>
@@ -103,7 +103,7 @@
                     <div class="col-md-10 col-lg-4 mx-auto order-0 order-lg-1 feeds">
                         <div class="card border-0">
                             <div class="card-body">
-                                <h2 class="card-title h4 d-none">Feeds</h2>
+                                <h2 class="card-title h4 d-none">Фиды</h2>
                             </div>
                             <ul class="list-group border-0 rounded-0"></ul>
                         </div>

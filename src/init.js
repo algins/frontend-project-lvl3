@@ -9,7 +9,7 @@ import { setLocale, string } from 'yup';
 import resources from './locales/index.js';
 import watch from './watcher.js';
 
-const getUrlSchema = (urls) => string().url().notOneOf(urls);
+const getUrlSchema = (urls) => string().required().url().notOneOf(urls);
 
 const getProxyUrl = (url) => {
   const proxyUrl = new URL('/get', 'https://allorigins.hexlet.app');
@@ -149,7 +149,7 @@ const runApp = (t) => {
 export default () => {
   i18next
     .init({
-      lng: 'en',
+      lng: 'ru',
       resources,
     })
     .then((t) => {
