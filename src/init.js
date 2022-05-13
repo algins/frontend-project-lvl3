@@ -7,6 +7,7 @@ import omit from 'lodash/omit.js';
 import uniqueId from 'lodash/uniqueId.js';
 import { setLocale, string } from 'yup';
 import resources from './locales/index.js';
+import parseRss from './parser.js';
 import watch from './watcher.js';
 
 const getUrlSchema = (urls) => string().required().url().notOneOf(urls);
@@ -16,28 +17,6 @@ const getProxyUrl = (url) => {
   proxyUrl.searchParams.append('disableCache', true);
   proxyUrl.searchParams.append('url', url);
   return proxyUrl.toString();
-};
-
-const parseRss = (rss) => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(rss, 'text/xml');
-  const errorNode = doc.querySelector('parsererror');
-
-  if (errorNode) {
-    const error = new Error(errorNode.textContent);
-    error.isParsingError = true;
-    throw error;
-  }
-
-  return {
-    title: doc.querySelector('channel > title').textContent,
-    description: doc.querySelector('channel > description').textContent,
-    items: [...doc.querySelectorAll('channel > item')].map((item) => ({
-      title: item.querySelector('title').textContent,
-      description: item.querySelector('description').textContent,
-      url: item.querySelector('link').textContent,
-    })),
-  };
 };
 
 const runApp = (t) => {
