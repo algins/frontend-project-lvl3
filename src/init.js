@@ -127,12 +127,14 @@ const runApp = (t) => {
 };
 
 export default () => {
-  i18next
+  const i18nextInstance = i18next.createInstance();
+  i18nextInstance
     .init({
       lng: 'ru',
       resources,
     })
-    .then((t) => {
+    .then(() => {
+      const { t } = i18nextInstance;
       setLocale({
         mixed: {
           notOneOf: t('validationError.notOneOf'),
