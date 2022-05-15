@@ -6,12 +6,13 @@ import first from 'lodash/first.js';
 import isEqual from 'lodash/isEqual.js';
 import omit from 'lodash/omit.js';
 import uniqueId from 'lodash/uniqueId.js';
-import { setLocale, string } from 'yup';
+import * as yup from 'yup';
 import resources from './locales/index.js';
+import setLocale from './locales/yup/setLocale.js';
 import parseRss from './parser.js';
 import watch from './watcher.js';
 
-const getUrlSchema = (urls) => string().required().url().notOneOf(urls);
+const getUrlSchema = (urls) => yup.string().required().url().notOneOf(urls);
 
 const getProxyUrl = (url) => {
   const proxyUrl = new URL('/get', 'https://allorigins.hexlet.app');
@@ -129,21 +130,11 @@ const runApp = (t) => {
 
 export default () => {
   const i18nextInstance = i18next.createInstance();
-  i18nextInstance
-    .init({
-      lng: 'ru',
-      resources,
-    })
-    .then(() => {
-      const { t } = i18nextInstance;
-      setLocale({
-        mixed: {
-          notOneOf: t('validationError.notOneOf'),
-        },
-        string: {
-          url: t('validationError.url'),
-        },
-      });
-      runApp(t);
-    });
+  const options = { lng: 'ru', resources };
+
+  i18nextInstance.init(options).then(() => {
+    const { t } = i18nextInstance;
+    setLocale(t);
+    runApp(t);
+  });
 };
