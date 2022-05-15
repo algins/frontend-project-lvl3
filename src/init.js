@@ -1,4 +1,5 @@
 import axios from 'axios';
+import 'bootstrap';
 import i18next from 'i18next';
 import differenceWith from 'lodash/differenceWith.js';
 import first from 'lodash/first.js';
