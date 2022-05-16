@@ -69,6 +69,9 @@ const runApp = (t) => {
         watchedState.newPosts = newPosts;
         watchedState.posts = [...newPosts, ...posts];
       })
+      .catch((error) => {
+        console.log(error);
+      })
       .finally(() => {
         scheduleFeedPostsUpdate(feed);
       });
