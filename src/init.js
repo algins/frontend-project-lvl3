@@ -49,30 +49,30 @@ const runApp = (t) => {
 
   const watchedState = watch(state, elements, t);
 
-  const updatePosts = () => {
-    const { feeds, posts } = watchedState;
-    feeds.forEach(({ id, url }) => {
-      const proxyUrl = getProxyUrl(url);
-      axios
-        .get(proxyUrl)
-        .then(({ data: { contents } }) => {
-          const { items } = parseRss(contents);
+  const scheduleFeedPostsUpdate = (feed) => setTimeout(() => {
+    const { id, url } = feed;
+    const { posts } = watchedState;
+    const proxyUrl = getProxyUrl(url);
 
-          const previousItems = posts
-            .filter(({ feedId }) => feedId === id)
-            .map((post) => omit(post, ['id', 'feedId']));
+    axios
+      .get(proxyUrl)
+      .then(({ data: { contents } }) => {
+        const { items } = parseRss(contents);
 
-          const newItems = differenceWith(items, previousItems, isEqual);
-          const newPosts = newItems.map((item) => ({ id: uniqueId(), feedId: id, ...item }));
+        const previousItems = posts
+          .filter(({ feedId }) => feedId === id)
+          .map((post) => omit(post, ['id', 'feedId']));
 
-          watchedState.newPosts = newPosts;
-          watchedState.posts = [...newPosts, ...posts];
-        });
-    });
-    setTimeout(updatePosts, 5000);
-  };
+        const newItems = differenceWith(items, previousItems, isEqual);
+        const newPosts = newItems.map((item) => ({ id: uniqueId(), feedId: id, ...item }));
 
-  updatePosts();
+        watchedState.newPosts = newPosts;
+        watchedState.posts = [...newPosts, ...posts];
+      })
+      .finally(() => {
+        scheduleFeedPostsUpdate(feed);
+      });
+  }, 5000);
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -98,6 +98,7 @@ const runApp = (t) => {
             const feedId = uniqueId();
             const feed = { id: feedId, url, ...restProps };
             const feedPosts = items.map((item) => ({ id: uniqueId(), feedId, ...item }));
+            scheduleFeedPostsUpdate(feed);
 
             watchedState.form.processState = 'loaded';
             watchedState.form.processMessage = t('processMessage.success');
