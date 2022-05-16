@@ -63,10 +63,9 @@ const renderFeeds = (elements, feeds) => {
   const h2 = feedsContainer.querySelector('h2');
   h2.classList.toggle('d-none', feeds.length === 0);
 
-  feeds.forEach(({ title, description }) => {
+  const lis = feeds.map(({ title, description }) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'border-0', 'border-end-0');
-    ul.append(li);
 
     const h3 = document.createElement('h3');
     h3.classList.add('h6', 'm-0');
@@ -77,7 +76,11 @@ const renderFeeds = (elements, feeds) => {
     p.classList.add('m-0', 'small', 'text-black-50');
     p.textContent = description;
     li.append(p);
+
+    return li;
   });
+
+  ul.append(...lis);
 };
 
 const renderPosts = (elements, newPosts, watchedState, t) => {
@@ -86,11 +89,10 @@ const renderPosts = (elements, newPosts, watchedState, t) => {
   const h2 = postsContainer.querySelector('h2');
   h2.classList.remove('d-none');
 
-  newPosts.reverse().forEach((post) => {
+  const lis = newPosts.map((post) => {
     const { id, title, url } = post;
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0');
-    ul.prepend(li);
 
     const a = document.createElement('a');
     a.classList.add('fw-bold');
@@ -110,7 +112,11 @@ const renderPosts = (elements, newPosts, watchedState, t) => {
     });
 
     li.append(a, button);
+
+    return li;
   });
+
+  ul.prepend(...lis);
 };
 
 const renderModal = (elements, previewPost) => {
