@@ -30,7 +30,6 @@ const runApp = (t) => {
       processMessage: null,
     },
     feeds: [],
-    newPosts: [],
     posts: [],
     previewPost: null,
   };
@@ -66,7 +65,6 @@ const runApp = (t) => {
         const newItems = differenceWith(items, previousItems, isEqual);
         const newPosts = newItems.map((item) => ({ id: uniqueId(), feedId: id, ...item }));
 
-        watchedState.newPosts = newPosts;
         watchedState.posts = [...newPosts, ...posts];
       })
       .catch((error) => {
@@ -106,7 +104,6 @@ const runApp = (t) => {
             watchedState.form.processState = 'loaded';
             watchedState.form.processMessage = t('processMessage.success');
             watchedState.feeds = [feed, ...feeds];
-            watchedState.newPosts = feedPosts;
             watchedState.posts = [...feedPosts, ...posts];
           })
           .catch((error) => {

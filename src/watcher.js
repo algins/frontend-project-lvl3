@@ -1,3 +1,5 @@
+import differenceWith from 'lodash/differenceWith.js';
+import isEqual from 'lodash/isEqual.js';
 import onChange from 'on-change';
 
 const handleProcessState = (elements, processState) => {
@@ -128,7 +130,7 @@ const renderModal = (elements, previewPost) => {
 };
 
 export default (state, elements, t) => {
-  const watchedState = onChange(state, (path, value) => {
+  const watchedState = onChange(state, (path, value, previousValue) => {
     switch (path) {
       case 'form.processState':
         handleProcessState(elements, value);
@@ -153,8 +155,9 @@ export default (state, elements, t) => {
         break;
       }
 
-      case 'newPosts': {
-        renderPosts(elements, value, watchedState, t);
+      case 'posts': {
+        const newPosts = differenceWith(value, previousValue, isEqual);
+        renderPosts(elements, newPosts, watchedState, t);
         break;
       }
 
