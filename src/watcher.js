@@ -60,65 +60,65 @@ const renderFeedback = (elements, error) => {
 
 const renderFeeds = (elements, feeds) => {
   const { feedsContainer } = elements;
-  const ul = feedsContainer.querySelector('ul');
-  ul.innerHTML = '';
-  const h2 = feedsContainer.querySelector('h2');
-  h2.classList.toggle('d-none', feeds.length === 0);
+  const feedsList = feedsContainer.querySelector('ul');
+  feedsList.innerHTML = '';
+  const feedsListHeading = feedsContainer.querySelector('h2');
+  feedsListHeading.classList.toggle('d-none', feeds.length === 0);
 
-  const lis = feeds.map(({ title, description }) => {
-    const li = document.createElement('li');
-    li.classList.add('list-group-item', 'border-0', 'border-end-0');
+  const feedsListItems = feeds.map(({ title, description }) => {
+    const feedsListItem = document.createElement('li');
+    feedsListItem.classList.add('list-group-item', 'border-0', 'border-end-0');
 
-    const h3 = document.createElement('h3');
-    h3.classList.add('h6', 'm-0');
-    h3.textContent = title;
-    li.append(h3);
+    const feedTitle = document.createElement('h3');
+    feedTitle.classList.add('h6', 'm-0');
+    feedTitle.textContent = title;
+    feedsListItem.append(feedTitle);
 
-    const p = document.createElement('p');
-    p.classList.add('m-0', 'small', 'text-black-50');
-    p.textContent = description;
-    li.append(p);
+    const feedDescription = document.createElement('p');
+    feedDescription.classList.add('m-0', 'small', 'text-black-50');
+    feedDescription.textContent = description;
+    feedsListItem.append(feedDescription);
 
-    return li;
+    return feedsListItem;
   });
 
-  ul.append(...lis);
+  feedsList.append(...feedsListItems);
 };
 
 const renderPosts = (elements, newPosts, watchedState, t) => {
   const { postsContainer } = elements;
-  const ul = postsContainer.querySelector('ul');
-  const h2 = postsContainer.querySelector('h2');
-  h2.classList.remove('d-none');
+  const postsList = postsContainer.querySelector('ul');
+  const postsListHeading = postsContainer.querySelector('h2');
+  postsListHeading.classList.remove('d-none');
 
-  const lis = newPosts.map((post) => {
+  const postsListItems = newPosts.map((post) => {
     const { id, title, url } = post;
-    const li = document.createElement('li');
-    li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0');
+    const postsListItem = document.createElement('li');
+    postsListItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0');
 
-    const a = document.createElement('a');
-    a.classList.add('fw-bold');
-    a.dataset.postId = id;
-    a.textContent = title;
-    a.setAttribute('href', url);
-    a.setAttribute('target', '_blank');
-    a.addEventListener('click', (e) => e.target.classList.replace('fw-bold', 'fw-normal'));
+    const postLink = document.createElement('a');
+    postLink.classList.add('fw-bold');
+    postLink.dataset.postId = id;
+    postLink.textContent = title;
+    postLink.setAttribute('href', url);
+    postLink.setAttribute('target', '_blank');
+    postLink.addEventListener('click', (e) => e.target.classList.replace('fw-bold', 'fw-normal'));
 
-    const button = document.createElement('button');
-    button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    button.dataset.bsToggle = 'modal';
-    button.dataset.bsTarget = '#modal';
-    button.textContent = t('preview');
-    button.addEventListener('click', () => {
+    const postPreviewButton = document.createElement('button');
+    postPreviewButton.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    postPreviewButton.dataset.bsToggle = 'modal';
+    postPreviewButton.dataset.bsTarget = '#modal';
+    postPreviewButton.textContent = t('preview');
+    postPreviewButton.addEventListener('click', () => {
       watchedState.previewPost = post;
     });
 
-    li.append(a, button);
+    postsListItem.append(postLink, postPreviewButton);
 
-    return li;
+    return postsListItem;
   });
 
-  ul.prepend(...lis);
+  postsList.prepend(...postsListItems);
 };
 
 const renderModal = (elements, previewPost) => {
