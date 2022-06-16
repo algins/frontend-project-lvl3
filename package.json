@@ -6,13 +6,6 @@
   "scripts": {
     "test": "npx jest --bail"
   },
-  "jest": {
-    "verbose": true,
-    "testEnvironment": "jsdom",
-    "testEnvironmentOptions": {
-      "url": "http://localhost/"
-    }
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/algins/frontend-project-lvl3.git"
@@ -28,6 +21,7 @@
     "@babel/core": "^7.17.10",
     "@babel/eslint-parser": "^7.17.0",
     "@babel/preset-env": "^7.17.10",
+    "@playwright/test": "^1.22.2",
     "babel-jest": "^28.0.3",
     "babel-loader": "^8.2.5",
     "css-loader": "^6.7.1",
