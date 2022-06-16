@@ -1,3 +1,5 @@
+/* eslint-disable jest/no-done-callback, no-useless-escape, jest/no-standalone-expect */
+
 import { URL } from 'url';
 import fs from 'fs';
 import path from 'path';
